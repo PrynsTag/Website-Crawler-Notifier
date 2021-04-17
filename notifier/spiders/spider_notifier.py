@@ -11,7 +11,7 @@ from scrapy.http import FormRequest
 
 def run_intervals():
     print('Scheduler initialised')
-    schedule.every(20).seconds.do(lambda: os.system('python3 notifier/spiders/spider_notifier.py'))
+    schedule.every(30).minutes.do(lambda: os.system('python3 notifier/spiders/spider_notifier.py'))
     print('Next job is set to run at: ' + str(schedule.next_run()))
 
     while True:
@@ -24,8 +24,8 @@ def send_email():
     smtp_server = "smtp.gmail.com"
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        server.login(SENDER_EMAIL, SENDER_EMAIL_PASS)
-        server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, MESSAGE)
+        server.login(os.environ["SENDER_EMAIL"], os.environ["SENDER_EMAIL_PASS"])
+        server.sendmail(os.environ["SENDER_EMAIL"], os.environ["RECEIVER_EMAIL"], os.environ["MESSAGE"])
     print("##--------------------------------------------------------##")
     print("##----------------- Grades is available! -----------------##")
     print("##--------------------------------------------------------##")
@@ -40,10 +40,10 @@ class SpiderNotifier(scrapy.Spider):
     name = "notifier"
 
     def start_requests(self):
-        yield scrapy.Request(url=URL, callback=self.login)
+        yield scrapy.Request(url=os.environ["URL"], callback=self.login)
 
     def login(self, response):
-        return FormRequest.from_response(response, formdata=FORM_DATA, callback=self.parse)
+        return FormRequest.from_response(response, formdata=os.environ["FORM_DATA"], callback=self.parse)
 
     def parse(self, response, **kwargs):
         data = response.css("table.profile-table > tr:nth-of-type(4) > td::text").getall()
