@@ -43,7 +43,7 @@ class SpiderNotifier(scrapy.Spider):
         yield scrapy.Request(url=os.environ["URL"], callback=self.login)
 
     def login(self, response):
-        return FormRequest.from_response(response, formdata=os.environ["FORM_DATA"], callback=self.parse)
+        return FormRequest.from_response(response, formdata=[(os.environ["creds_1"], os.environ["creds_1_ans"]), (os.environ["creds_2"], os.environ["creds_2_ans"]), (os.environ["creds_3"], os.environ["creds_3_ans"])], callback=self.parse)
 
     def parse(self, response, **kwargs):
         data = response.css("table.profile-table > tr:nth-of-type(4) > td::text").getall()
