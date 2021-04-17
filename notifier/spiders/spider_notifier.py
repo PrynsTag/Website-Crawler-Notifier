@@ -8,11 +8,12 @@ import scrapy
 from scrapy.crawler import CrawlerProcess
 from scrapy.http import FormRequest
 
+from info import *
 
 
 def run_intervals():
     print('Scheduler initialised')
-    schedule.every(20).seconds.do(lambda: os.system('python3 spider_notifier.py'))
+    schedule.every(20).seconds.do(lambda: os.system('python3 notifier/spiders/spider_notifier.py'))
     print('Next job is set to run at: ' + str(schedule.next_run()))
 
     while True:
