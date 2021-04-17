@@ -1,1 +1,1 @@
-worker: python3 notifier/main.py
+worker: python3 notifier/spiders/spider_notifier.py
