@@ -8,8 +8,6 @@ import scrapy
 from scrapy.crawler import CrawlerProcess
 from scrapy.http import FormRequest
 
-from info import *
-
 
 def run_intervals():
     print('Scheduler initialised')
