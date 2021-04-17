@@ -1,0 +1,1 @@
+worker: python3 notifier/spiders/spider_notifier.py
