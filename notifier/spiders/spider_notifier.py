@@ -8,21 +8,26 @@ from scrapy.http import FormRequest
 from info import *
 
 
-def send_email():
+def send_email(msg):
     port = 465
     smtp_server = "smtp.gmail.com"
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(SENDER_EMAIL, SENDER_EMAIL_PASS)
-        server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, MESSAGE)
+        server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg)
     print("##--------------------------------------------------------##")
     print("##----------------- Grades is available! -----------------##")
     print("##--------------------------------------------------------##")
 
 
-def check_status(data_dict):
-    if data_dict["status"].strip() != "Temporarily unavaible".strip():
-        send_email()
+def check_grade(data):
+    if data["status"].strip() != "Temporarily unavaible".strip():
+        send_email(GRADE_MESSAGE)
+
+
+def check_scholar(data):
+    if "Scholarship" in data:
+        send_email(SCHOLAR_MESSAGE)
 
 
 class SpiderNotifier(scrapy.Spider):
@@ -32,15 +37,12 @@ class SpiderNotifier(scrapy.Spider):
         yield scrapy.Request(url=URL, callback=self.login)
 
     def login(self, response):
-        return FormRequest.from_response(response, formdata=FORM_DATA, callback=self.parse)
+        yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.parse)
 
     def parse(self, response, **kwargs):
-        data = response.css("table.profile-table > tr:nth-of-type(4) > td::text").getall()
-        my_data = [info.strip() for info in data]
-        grade_view = dict(label=[my_data[0]], status=my_data[1])
-        check_status(grade_view)
-        print(grade_view)
-        yield grade_view
+        status = response.css("table.profile-table > tr > td::text").getall()
+        clean_status = [info.strip() for info in status]
+        check_scholar(clean_status)
 
 
 if __name__ == "__main__":
