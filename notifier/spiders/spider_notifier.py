@@ -1,6 +1,7 @@
 import smtplib
 import ssl
 
+import pandas as pd
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from scrapy.http import FormRequest
@@ -32,6 +33,7 @@ def check_scholar(data):
 
 class SpiderNotifier(scrapy.Spider):
     name = "notifier"
+    list_of_row = []
 
     def start_requests(self):
         yield scrapy.Request(url=URL, callback=self.login)
@@ -43,6 +45,36 @@ class SpiderNotifier(scrapy.Spider):
         status = response.css("table.profile-table > tr > td::text").getall()
         clean_status = [info.strip() for info in status]
         check_scholar(clean_status)
+        course_card = response.css("td.sidebar > ul > li:nth-child(3) a::attr(href)").get()
+        yield response.follow(course_card, callback=self.parse_grade)
+
+    def parse_grade(self, response):
+        term_select = ["1", "2", "3"]
+        sy_select = ["20182019", "20192020", "20202021"]
+        for sy in sy_select:
+            for term in term_select:
+                yield FormRequest.from_response(response, formdata={
+                    "term": term,
+                    "school_year": sy,
+                    "submit": "submit"
+                }, callback=self.parse_table)
+
+    def parse_table(self, response):
+        table = response.css("table.table")
+        header = ["Course", "Course Title", "Section", "Units", "Midterm", "Final"]
+
+        for row in table.css("tr"):
+            list_of_cell = []
+            for cell in row.css("td::text").getall():
+                list_of_cell.append(cell)
+            self.list_of_row.append(list_of_cell)
+
+        df_grades = pd.DataFrame(self.list_of_row)
+        df_grades = df_grades.replace('[^a-zA-Z0-9. ]', '', regex=True)
+        df_grades.dropna(axis=1, how="all", inplace=True)
+        df_grades.dropna(axis=0, how="all", inplace=True)
+        df_grades[4].fillna(value="-", inplace=True)
+        df_grades.to_csv("Term Grades.csv", index=False, header=header)
 
 
 if __name__ == "__main__":
