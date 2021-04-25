@@ -226,3 +226,4 @@ pip-selfcheck.json
 
 # User ignore
 notifier/spiders/info.py
+notifier/spiders/Term Grades.csv
