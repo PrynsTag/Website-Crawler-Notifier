@@ -33,15 +33,13 @@ def check_scholar(data):
 
 class SpiderNotifier(scrapy.Spider):
     name = "notifier"
+    start_urls = [URL]
     list_of_row = []
 
-    def start_requests(self):
-        yield scrapy.Request(url=URL, callback=self.login)
-
-    def login(self, response):
-        yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.parse)
-
     def parse(self, response, **kwargs):
+        yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.after_login)
+
+    def after_login(self, response):
         status = response.css("table.profile-table > tr > td::text").getall()
         clean_status = [info.strip() for info in status]
         check_scholar(clean_status)
@@ -49,8 +47,6 @@ class SpiderNotifier(scrapy.Spider):
         yield response.follow(course_card, callback=self.parse_grade)
 
     def parse_grade(self, response):
-        term_select = ["1", "2", "3"]
-        sy_select = ["20182019", "20192020", "20202021"]
         for sy in sy_select:
             for term in term_select:
                 yield FormRequest.from_response(response, formdata={
@@ -61,7 +57,6 @@ class SpiderNotifier(scrapy.Spider):
 
     def parse_table(self, response):
         table = response.css("table.table")
-        header = ["Course", "Course Title", "Section", "Units", "Midterm", "Final"]
 
         for row in table.css("tr"):
             list_of_cell = []
