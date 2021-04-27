@@ -5,6 +5,8 @@ import pandas as pd
 import scrapy
 from scrapy.crawler import CrawlerProcess
 from scrapy.http import FormRequest
+from scrapy.utils.project import get_project_settings
+from scrapy_selenium import SeleniumRequest
 
 from info import *
 
@@ -33,17 +35,22 @@ def check_scholar(data):
 
 class SpiderNotifier(scrapy.Spider):
     name = "notifier"
-    start_urls = [URL]
     list_of_row = []
+
+    def start_requests(self):
+        yield SeleniumRequest(
+            url=URL,
+            wait_time=3,
+            callback=self.parse
+        )
 
     def parse(self, response, **kwargs):
         yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.after_login)
 
     def after_login(self, response):
-        status = response.css("table.profile-table > tr > td::text").getall()
-        clean_status = [info.strip() for info in status]
-        check_scholar(clean_status)
-        course_card = response.css("td.sidebar > ul > li:nth-child(3) a::attr(href)").get()
+        status = response.xpath("//table[@class=\"profile-table\"]//td[position() = 1]/text()").getall()
+        check_scholar(status)
+        course_card = response.xpath("//td[@class=\"sidebar\"]/ul/li[position() = 3]//a/@href").get()
         yield response.follow(course_card, callback=self.parse_grade)
 
     def parse_grade(self, response):
@@ -56,23 +63,20 @@ class SpiderNotifier(scrapy.Spider):
                 }, callback=self.parse_table)
 
     def parse_table(self, response):
-        table = response.css("table.table")
+        table = response.xpath("//table[@class=\"table\"]")
 
-        for row in table.css("tr"):
+        for row in table.xpath(".//tr"):
             list_of_cell = []
-            for cell in row.css("td::text").getall():
-                list_of_cell.append(cell)
+            for cell in row.xpath(".//td/text()").getall():
+                list_of_cell.append(cell.strip())
             self.list_of_row.append(list_of_cell)
 
         df_grades = pd.DataFrame(self.list_of_row)
-        df_grades = df_grades.replace('[^a-zA-Z0-9. ]', '', regex=True)
-        df_grades.dropna(axis=1, how="all", inplace=True)
         df_grades.dropna(axis=0, how="all", inplace=True)
-        df_grades[4].fillna(value="-", inplace=True)
         df_grades.to_csv("Term Grades.csv", index=False, header=header)
 
 
 if __name__ == "__main__":
-    process = CrawlerProcess()
+    process = CrawlerProcess(settings=get_project_settings())
     process.crawl(SpiderNotifier)
     process.start()
