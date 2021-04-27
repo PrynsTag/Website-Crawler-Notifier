@@ -12,6 +12,8 @@ BOT_NAME = 'notifier'
 SPIDER_MODULES = ['notifier.spiders']
 NEWSPIDER_MODULE = 'notifier.spiders'
 
+FEED_EXPORT_ENCODING = 'utf-8'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'notifier (+http://www.yourdomain.com)'
 
@@ -79,9 +81,9 @@ DEFAULT_REQUEST_HEADERS = {
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 1
+# AUTOTHROTTLE_START_DELAY = 1
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 3
+# AUTOTHROTTLE_MAX_DELAY = 3
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
 # AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
@@ -95,3 +97,10 @@ AUTOTHROTTLE_MAX_DELAY = 3
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+# Selenium
+from shutil import which
+
+SELENIUM_DRIVER_NAME = 'chrome'
+SELENIUM_DRIVER_EXECUTABLE_PATH = which('online_shopping_notifier/spiders/chromedriver')
+SELENIUM_DRIVER_ARGUMENTS = ['--headless']  # '--headless' if using chrome instead of firefox
