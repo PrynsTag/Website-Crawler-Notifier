@@ -39,9 +39,8 @@ class SpiderNotifier(scrapy.Spider):
                                          callback=self.parse)
 
     def parse(self, response, **kwargs):
-        status = response.css("table.profile-table > tr > td::text").getall()
-        clean_status = [info.strip() for info in status]
-        check_scholar(clean_status)
+        status = response.xpath("//table[@class=\"profile-table\"]//td[position() = 1]/text()").getall()
+        check_scholar(status)
 
 
 if __name__ == "__main__":
