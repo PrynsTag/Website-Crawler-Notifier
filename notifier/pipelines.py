@@ -5,9 +5,21 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+import pymongo
+
+from notifier.spiders.info import *
 
 
-class NotifierPipeline:
+class MongodbPipeline:
+    collection_name = "Grades"
+
+    def open_spider(self, spider):
+        self.client = pymongo.MongoClient(MONGO_URI)
+        self.db = self.client["Notifier"]
+
+    def close_spider(self, spider):
+        self.client.close()
+
     def process_item(self, item, spider):
+        self.db[self.collection_name].insert(item)
         return item
