@@ -69,7 +69,7 @@ class SpiderNotifier(scrapy.Spider):
             if list_of_cell and len(list_of_cell) == 6:
                 self.list_of_row.append(list_of_cell)
                 yield {
-                    "Course": list_of_cell[0],
+                    "Course Code": list_of_cell[0],
                     "Course Title": list_of_cell[1],
                     "Section": list_of_cell[2],
                     "Units": list_of_cell[3],
