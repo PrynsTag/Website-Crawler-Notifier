@@ -74,7 +74,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'notifier.pipelines.MongodbPipeline': 300
+   'notifier.pipelines.SQLitePipeline': 300,
+   # 'notifier.pipelines.MongodbPipeline': 300 For MongoDB
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
