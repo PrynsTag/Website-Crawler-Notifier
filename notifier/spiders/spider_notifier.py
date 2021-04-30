@@ -41,7 +41,7 @@ class SpiderNotifier(scrapy.Spider):
         )
 
     def parse(self, response, **kwargs):
-        yield FormRequest.from_response(response, formdata=form_data_login, callback=self.after_login)
+        yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.after_login)
 
     def after_login(self, response):
         status = response.xpath("//table[@class=\"profile-table\"]//td[position() = 1]/text()").getall()
