@@ -18,9 +18,6 @@ def send_email(msg):
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(SENDER_EMAIL, SENDER_EMAIL_PASS)
         server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg)
-    print("##--------------------------------------------------------##")
-    print("##----------------- Grades is available! -----------------##")
-    print("##--------------------------------------------------------##")
 
 
 def check_grade(data):
