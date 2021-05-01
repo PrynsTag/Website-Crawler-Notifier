@@ -3,6 +3,7 @@ import ssl
 
 import scrapy
 from scrapy.crawler import CrawlerProcess
+from scrapy.exceptions import CloseSpider
 from scrapy.http import FormRequest
 from scrapy.utils.project import get_project_settings
 from scrapy_selenium import SeleniumRequest
@@ -17,16 +18,21 @@ def send_email(msg):
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(SENDER_EMAIL, SENDER_EMAIL_PASS)
         server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg)
+        CloseSpider()
 
 
 def check_grade(data):
+    """Function to check if grades is available for viewing"""
     if data["status"].strip() != "Temporarily unavaible".strip():
         send_email(GRADE_MESSAGE)
+        CloseSpider()
 
 
 def check_scholar(data):
+    """Function to check if scholarship status is available"""
     if "Scholarship" in data:
         send_email(SCHOLAR_MESSAGE)
+        CloseSpider()
 
 
 class SpiderNotifier(scrapy.Spider):
