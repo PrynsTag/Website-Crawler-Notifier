@@ -49,8 +49,6 @@ DEFAULT_REQUEST_HEADERS = {
     "Sec-Fetch-Site": "same-origin",
     "Sec-Fetch-User": "?1",
     "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 "
-                  "Safari/537.36 OPR/75.0.3969.218 "
 }
 
 # Enable or disable spider middlewares
@@ -61,9 +59,11 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'notifier.middlewares.NotifierDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'notifier.middlewares.UserAgentRotatorMiddleware': 400
+    # 'notifier.middlewares.NotifierDownloaderMiddleware': 543,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -74,8 +74,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'notifier.pipelines.SQLitePipeline': 300,
-   # 'notifier.pipelines.MongodbPipeline': 300 For MongoDB
+    # 'notifier.pipelines.SQLitePipeline': 300,
+    # 'notifier.pipelines.MongodbPipeline': 300 For MongoDB
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
