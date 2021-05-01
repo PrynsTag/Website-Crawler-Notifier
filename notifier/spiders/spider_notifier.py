@@ -25,14 +25,12 @@ def check_grade(data):
     """Function to check if grades is available for viewing"""
     if data["status"].strip() != "Temporarily unavaible".strip():
         send_email(GRADE_MESSAGE)
-        CloseSpider()
 
 
 def check_scholar(data):
     """Function to check if scholarship status is available"""
     if "Scholarship" in data:
         send_email(SCHOLAR_MESSAGE)
-        CloseSpider()
 
 
 class SpiderNotifier(scrapy.Spider):
@@ -50,10 +48,10 @@ class SpiderNotifier(scrapy.Spider):
         yield FormRequest.from_response(response, formdata=FORM_DATA, callback=self.after_login)
 
     def after_login(self, response):
-        status = response.xpath("//table[@class=\"profile-table\"]//td[position() = 1]/text()").getall()
-        check_scholar(status)
         course_card = response.xpath("//td[@class=\"sidebar\"]/ul/li[position() = 3]//a/@href").get()
         yield response.follow(course_card, callback=self.parse_grade)
+        # status = response.xpath("//table[@class=\"profile-table\"]//td[position() = 1]/text()").getall()
+        # check_scholar(status)
 
     def parse_grade(self, response):
         for sy in sy_select:
